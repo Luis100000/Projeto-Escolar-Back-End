@@ -1,0 +1,239 @@
+const express = require('express');
+const app = express();
+const PORT = 3000;
+
+// Paleta de Cores ANSI para o Monitor do Terminal do Desenvolvedor
+const R = "\x1b[0m";       // Reset
+const B = "\x1b[1m";       // Bold
+const CY = "\x1b[36m";     // Cyan
+const GR = "\x1b[32m";     // Green
+const YL = "\x1b[33m";     // Yellow
+const MG = "\x1b[35m";     // Magenta
+
+// Middleware de Logs em Tempo Real no Terminal
+app.use((req, res, next) => {
+    const hora = new Date().toLocaleTimeString();
+    console.log(`${CY}●${R} ${B}${hora}${R} │ Rota Requisitada: ${MG}${req.url}${R} ─── ${GR}✔ 200 OK${R}`);
+    next();
+});
+
+// ==========================================================================
+// 🎨 TEMPLATE ENGINE VISUAL (Layout UI/UX Premium Compartilhado)
+// ==========================================================================
+const gerarInterfaceHTML = (titulo, icone, corDestaque, conteudoJSON, rotaAtiva, rawData) => {
+    return `
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>ControlCenter | API Dashboard</title>
+        <link rel="preconnect" href="https://googleapis.com">
+        <link rel="preconnect" href="https://gstatic.com" crossorigin>
+        <link href="https://googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+        <style>
+            :root {
+                --bg-main: #060814;
+                --bg-card: #0b112c;
+                --bg-nav: #11183c;
+                --text-main: #f3f4f6;
+                --text-muted: #9ca3af;
+                --primary: ${corDestaque};
+                --border: #1e295d;
+            }
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body {
+                font-family: 'Plus Jakarta Sans', sans-serif;
+                background-color: var(--bg-main);
+                color: var(--text-main);
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+            }
+            /* HEADER & NAVIGATION */
+            .navbar {
+                background-color: var(--bg-nav);
+                border-bottom: 1px solid var(--border);
+                padding: 1.2rem 3rem;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                position: fixed;
+                width: 100%;
+                top: 0;
+                z-index: 100;
+                backdrop-filter: blur(12px);
+            }
+            .nav-brand { font-weight: 700; font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem; letter-spacing: -0.02em; }
+            .nav-links { display: flex; gap: 0.75rem; list-style: none; }
+            .nav-links a {
+                color: var(--text-muted);
+                text-decoration: none;
+                font-size: 0.9rem;
+                font-weight: 600;
+                padding: 0.6rem 1.2rem;
+                border-radius: 10px;
+                transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .nav-links a:hover { color: #fff; background-color: rgba(255, 255, 255, 0.02); }
+            .nav-links a.active {
+                color: #fff;
+                background-color: var(--primary);
+                box-shadow: 0 0 20px ${corDestaque}66;
+            }
+            /* MAIN LAYOUT */
+            .main-container {
+                flex: 1;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 8rem 1.5rem 4rem;
+            }
+            .card-interface {
+                background-color: var(--bg-card);
+                border: 1px solid var(--border);
+                border-radius: 24px;
+                width: 100%;
+                max-width: 720px;
+                padding: 2.5rem;
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+                position: relative;
+                overflow: hidden;
+                animation: slideUp 0.4s ease-out;
+            }
+            .card-interface::before {
+                content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--primary);
+            }
+            .card-header { display: flex; align-items: center; gap: 1.2rem; margin-bottom: 1.5rem; }
+            .icon-wrapper {
+                font-size: 2rem; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border);
+                width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; border-radius: 16px;
+            }
+            .card-header h2 { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.02em; }
+            
+            /* CODE DATA VIEW */
+            .data-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 600; }
+            .terminal-view {
+                background-color: #03050f;
+                border: 1px solid var(--border);
+                border-radius: 14px;
+                padding: 1.2rem;
+                font-family: 'Fira Code', monospace;
+                font-size: 0.85rem;
+                color: #e2e8f0;
+                overflow-x: auto;
+                line-height: 1.5;
+            }
+            .json-key { color: #f43f5e; }
+            .json-value { color: #10b981; }
+            .json-string { color: #38bdf8; }
+            .json-number { color: #fbbf24; }
+
+            /* ANIMATION */
+            @keyframes slideUp {
+                from { opacity: 0; transform: translateY(15px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            footer { text-align: center; padding: 1.5rem; font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border); background: #04060f; }
+        </style>
+    </head>
+    <body>
+        <nav class="navbar">
+            <div class="nav-brand">🛰️ ControlCenter API</div>
+            <ul class="nav-links">
+                <li><a href="/usuarios" class="${rotaAtiva === 'usuarios' ? 'active' : ''}">Usuários</a></li>
+                <li><a href="/tarefas" class="${rotaAtiva === 'tarefas' ? 'active' : ''}">Tarefas</a></li>
+                <li><a href="/reservas" class="${rotaAtiva === 'reservas' ? 'active' : ''}">Reservas</a></li>
+                <li><a href="/status" class="${rotaAtiva === 'status' ? 'active' : ''}">Status</a></li>
+                <li><a href="/turmas" class="${rotaAtiva === 'turmas' ? 'active' : ''}">Turmas</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-container">
+            <div class="card-interface">
+                <div class="card-header">
+                    <div class="icon-wrapper">${icone}</div>
+                    <h2>${titulo}</h2>
+                </div>
+                <div class="data-title">Payload JSON de Resposta (HTTP 200)</div>
+                <pre class="terminal-view"><code>${conteudoJSON}</code></pre>
+            </div>
+        </main>
+
+        <footer>
+            Enterprise Control Center • Renderizado com Padrões Modernos de UI/UX
+        </footer>
+    </body>
+    </html>
+    `;
+};
+
+// Função auxiliar para injetar cores sintáticas nas chaves e valores do JSON visual
+function estilizarJSON(obj) {
+    return JSON.stringify(obj, null, 2)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+            let cls = 'json-number';
+            if (/^"/.test(match)) {
+                if (/:$/.test(match)) {
+                    cls = 'json-key';
+                } else {
+                    cls = 'json-string';
+                }
+            } else if (/true|false/.test(match)) {
+                cls = 'json-value';
+            }
+            return '<span class="' + cls + '">' + match + '</span>';
+        });
+}
+
+// ==========================================================================
+// 🛠️ DEFINIÇÃO DAS ROTAS DO EXERCÍCIO COM DESIGN PREMIUM
+// ==========================================================================
+
+// 1. Crie uma rota GET para listar usuários.
+app.get('/usuarios', (req, res) => {
+    const dados = {
+        endpoint: "/usuarios",
+        total: 2,
+        usuarios: [
+            { id: 1, nome: "Ana Silva", papel: "Fullstack Engineer", ativo: true },
+            { id: 2, nome: "Carlos Souza", papel: "UI/UX Designer", ativo: true }
+        ]
+    };
+    res.send(gerarInterfaceHTML('Listagem de Usuários', '👥', '#3b82f6', estilizarJSON(dados), 'usuarios'));
+});
+
+// 2. Crie uma rota GET para listar tarefas.
+app.get('/tarefas', (req, res) => {
+    const dados = {
+        endpoint: "/tarefas",
+        projeto: "Dashboard Core",
+        tarefas: [
+            { id: 101, designacao: "Configurar Servidor Express", concluida: true },
+            { id: 102, designacao: "Estilizar Interfaces de Resposta", concluida: false }
+        ]
+    };
+    res.send(gerarInterfaceHTML('Painel de Tarefas', '📁', '#10b981', estilizarJSON(dados), 'tarefas'));
+});
+
+// 3. Crie uma rota GET para mostrar reservas.
+app.get('/reservas', (req, res) => {
+    const dados = {
+        endpoint: "/reservas",
+        sala: "Meeting Room Alpha",
+        agenda: [
+            { id: 501, responsavel: "Ana Silva", data: "2026-07-05", status: "Confirmada" }
+        ]
+    };
+    res.send(gerarInterfaceHTML('Controle de Reservas', '📅', '#6366f1', estilizarJSON(dados), 'reservas'));
+});
+
+// 4. Crie uma rota GET para mostrar uma mensagem de sistema ativo.
+app.get('/status', (req, res) => {
+    const dados = {
+        endpoint: "/status",
+        sistema: "Core Server Engine",
+        online: true,
+        mensagem: "Sistema ativo, estável e escutando requisições no barramento local."
+    };

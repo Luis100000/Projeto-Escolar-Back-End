@@ -1,0 +1,243 @@
+const fs = require('fs');
+
+// ==========================================
+// 1. CONTEÚDO DO SITE PREMIUM (index.html)
+// ==========================================
+const htmlContent = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SaaS Dashboard | ControlCenter</title>
+    <link href="https://googleapis.com" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #060814;
+            --surface: #0b112c;
+            --border: #1e295d;
+            --text: #f3f4f6;
+            --text-muted: #9ca3af;
+            --primary: #3b82f6;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .nav {
+            background: rgba(11, 17, 44, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 1.2rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 100;
+        }
+        .logo { font-weight: 700; letter-spacing: -0.03em; font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem; }
+        .menu { display: flex; gap: 1rem; list-style: none; }
+        .menu button {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-family: inherit;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            transition: all 0.2s;
+        }
+        .menu button:hover { color: #fff; background: rgba(255,255,255,0.02); }
+        .menu button.active {
+            color: #fff;
+            background: var(--primary);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+        }
+        .container { flex: 1; display: flex; align-items: center; justify-content: center; padding: 8rem 2rem 4rem; }
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 3rem;
+            max-width: 650px;
+            width: 100%;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+            position: relative;
+            overflow: hidden;
+            display: none;
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        .card.active { display: block; }
+        .card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--primary); }
+        .header { display: flex; align-items: center; gap: 1.2rem; margin-bottom: 1.5rem; }
+        .icon {
+            font-size: 2.2rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            width: 64px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+        }
+        .header h2 { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.02em; }
+        .body p { color: #9ca3af; line-height: 1.8; font-size: 1.05rem; margin-bottom: 2rem; }
+        .terminal {
+            background: #03050f;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.2rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .dots { display: flex; gap: 0.5rem; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        footer { text-align: center; padding: 1.5rem; font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border); }
+    </style>
+</head>
+<body>
+
+    <nav class="nav">
+        <div class="logo">🛰️ ControlCenter</div>
+        <div class="menu">
+            <button onclick="switchTab('home', '#3b82f6')" id="btn-home" class="active">Boas-Vindas</button>
+            <button onclick="switchTab('sobre', '#10b981')" id="btn-sobre">Sobre</button>
+            <button onclick="switchTab('equipe', '#6366f1')" id="btn-equipe">Equipe</button>
+            <button onclick="switchTab('contato', '#f97316')" id="btn-contato">Contato</button>
+        </div>
+    </nav>
+
+    <main class="container">
+        <!-- ROTA INICIAL / HOME -->
+        <div id="tab-home" class="card active">
+            <div class="header">
+                <div class="icon">🚀</div>
+                <h2>Painel de Controle</h2>
+            </div>
+            <div class="body"><p>Seja bem-vindo ao ecossistema! Esta interface simula uma aplicação integrada de alta fidelidade desenvolvida para demonstração estática no GitHub Pages.</p></div>
+            <div class="terminal">
+                <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                <div>HTTP GET / ── 200 OK</div>
+            </div>
+        </div>
+
+        <!-- ROTA SOBRE -->
+        <div id="tab-sobre" class="card">
+            <div class="header">
+                <div class="icon">📁</div>
+                <h2>Sobre o Projeto</h2>
+            </div>
+            <div class="body"><p>Este projeto foi estruturado sob o conceito de Single Page Application (SPA), focado em performance visual e entrega responsiva de layouts modernos.</p></div>
+            <div class="terminal">
+                <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                <div>HTTP GET /sobre ── 200 OK</div>
+            </div>
+        </div>
+
+        <!-- ROTA EQUIPE -->
+        <div id="tab-equipe" class="card">
+            <div class="header">
+                <div class="icon">👥</div>
+                <h2>Core Team</h2>
+            </div>
+            <div class="body"><p>Uma equipe ágil dedicada a implementar soluções visuais limpas e eficientes, garantindo consistência técnica em portfólios no GitHub.</p></div>
+            <div class="terminal">
+                <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                <div>HTTP GET /equipe ── 200 OK</div>
+            </div>
+        </div>
+
+        <!-- ROTA CONTATO -->
+        <div id="tab-contato" class="card">
+            <div class="header">
+                <div class="icon">📞</div>
+                <h2>Central de Suporte</h2>
+            </div>
+            <div class="body"><p>Precisa entrar em contato ou obter mais detalhes do projeto? Envie uma mensagem direta no perfil conectado ou abra uma issue no repositório.</p></div>
+            <div class="terminal">
+                <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                <div>HTTP GET /contato ── 200 OK</div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        Enterprise Control Center • Hospedado no GitHub Pages
+    </footer>
+
+    <script>
+        function switchTab(tabId, color) {
+            document.querySelectorAll('.card').forEach(card => card.classList.remove('active'));
+            document.querySelectorAll('.menu button').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById('tab-' + tabId).classList.add('active');
+            document.getElementById('btn-' + tabId).classList.add('active');
+            
+            document.documentElement.style.setProperty('--primary', color);
+            document.querySelector('#btn-' + tabId).style.boxShadow = '0 0 20px ' + color + '66';
+        }
+    </script>
+</body>
+</html>`;
+
+// ==========================================
+// 2. CONTEÚDO DO README DO GITHUB (README.md)
+// ==========================================
+const readmeContent = `# ⚡ ControlCenter Dashboard
+
+<div align="center">
+  <img src="https://shields.io" alt="GitHub Pages" />
+  <img src="https://shields.io" alt="HTML5" />
+  <img src="https://shields.io" alt="CSS3" />
+</div>
+
+<br />
+
+> **Visualização Online Pronta:** Interface corporativa projetada especificamente para rodar diretamente do seu repositório GitHub através do recurso Pages.
+
+---
+
+## 🗺️ Estrutura de Abas do Sistema
+
+O projeto simula a navegação por rotas do sistema operacional de forma limpa:
+
+- 🔵 **Boas-Vindas:** Painel inicial de controle.
+- 🟢 **Sobre:** Visão geral da arquitetura de software.
+- 🟣 **Equipe:** Informações corporativas sobre o time.
+- 🟠 **Contato:** Canal de comunicação e central técnica.
+
+---
+
+## 🚀 Como Ativar no seu GitHub
+
+Siga este passo a passo para fazer seu site dar certo e aparecer online:
+
+1. Crie um novo repositório no seu GitHub.
+2. Faça o upload dos arquivos gerados (`index.html` e `README.md`).
+3. No repositório, vá em **Settings** (Configurações) > **Pages**.
+4. Em *Build and deployment*, mude a Source para **Deploy from a branch**.
+5. Selecione a branch `main` (ou `master`) e salve.
+6. Pronto! O GitHub fornecerá uma URL pública com o seu site funcionando perfeitamente com design premium.
+
+---
+<div align="center">
+  <sub>Desenvolvido com foco em portfólios web de alta qualidade visual.</sub>
+</div>`;
+

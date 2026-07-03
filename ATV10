@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Integrado de Gerenciamento - Dashboard</title>
+    <!-- Google Fonts para um visual moderno e limpo -->
+    <link rel="preconnect" href="https://googleapis.com">
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
+    <link href="https://googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ==========================================================================
+           RESET E VARIÁVEIS DE DESIGN (Paleta de Cores de Site Profissional SaaS)
+           ========================================================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-principal: #0b0f19;
+            --bg-card: #151b2c;
+            --bg-terminal: #070a12;
+            --texto-principal: #f3f4f6;
+            --texto-secundario: #9ca3af;
+            
+            /* Cores de Destaque */
+            --cyan: #06b6d4;
+            --blue: #3b82f6;
+            --green: #10b981;
+            --yellow: #f59e0b;
+            --magenta: #d946ef;
+            --border: #242f47;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-principal);
+            color: var(--texto-principal);
+            min-height: 100vh;
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* CONTAINER PRINCIPAL DO SITE */
+        .dashboard {
+            width: 100%;
+            max-width: 1000px;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+
+        /* HEADER DO SITE */
+        .dashboard-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to right, #1a233a, #151b2c);
+        }
+
+        .projeto-info h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .projeto-info p {
+            font-size: 0.85rem;
+            color: var(--texto-secundario);
+            margin-top: 0.25rem;
+        }
+
+        .badge-status {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--green);
+            padding: 0.35rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .badge-status::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background-color: var(--green);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 8px var(--green);
+        }
+
+        /* CORPO DO DASHBOARD */
+        .dashboard-body {
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* GRID DE INFORMAÇÕES SUPERIORES */
+        .grid-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .card {
+            background-color: rgba(7, 10, 18, 0.4);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+        }
+
+        .card-titulo {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--texto-secundario);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .card-conteudo {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        /* CARD DE SAUDAÇÃO INDIVIDUAL (MURAL DA EQUIPE) */
+        .card-saudacao {
+            background: linear-gradient(135deg, rgba(217, 70, 239, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+            border: 1px solid rgba(217, 70, 239, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+            position: relative;
+        }
+
+        .card-saudacao p {
+            font-style: italic;
+            color: #f3f4f6;
+            line-height: 1.5;
+            font-size: 1rem;
+        }
+
+        /* INTERFACE DO TERMINAL EMBUTIDO */
+        .terminal-container {
+            background-color: var(--bg-terminal);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        /* Barra superior do terminal (Estilo macOS) */
+        .terminal-header {
+            background-color: #111827;
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .terminal-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-term {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .btn-fechar { background-color: #ef4444; }
+        .btn-minimizar { background-color: #eab308; }
+        .btn-maximizar { background-color: #22c55e; }
+
+        .terminal-titulo {
+            margin-left: 1.5rem;
+            font-size: 0.75rem;
+            font-family: 'Fira Code', monospace;
+            color: var(--texto-secundario);
+        }
+
+        /* Conteúdo interno do Terminal */
+        .terminal-content {
+            padding: 1.5rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        /* Classes de cores aplicadas via JS dinamicamente imitando o ANSI */
+        .c-cyan { color: var(--cyan); font-weight: bold; }
+        .c-blue { color: var(--blue); font-weight: bold; }
+        .c-green { color: var(--green); }
+        .c-yellow { color: var(--yellow); }
+        .c-magenta { color: var(--magenta); }
+        .c-reset { color: var(--texto-principal); }
+        .br { display: block; margin-bottom: 0.5rem; }
+
+        /* FOOTER DO SITE */
+        .dashboard-footer {
+            padding: 1rem 2rem;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--texto-secundario);
+            background-color: rgba(7, 10, 18, 0.2);
+        }
+
+        .dashboard-footer a {
+            color: var(--cyan);
+            text-decoration: none;
+        }
+        
+        .dashboard-footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard">
+        <!-- HEADER DO SITE PROFISSIONAL -->
+        <header class="dashboard-header">
+            <div class="projeto-info">
+                <h1>🚀 Sistema Integrado de Gerenciamento</h1>
+                <p>Console de Administração do Desenvolvedor</p>
+            </div>
+            <div class="badge-status">Ativo (v1.0.0)</div>
+        </header>
+
+        <!-- CORPO PRINCIPAL -->
+        <div class="dashboard-body">
+            
+            <!-- GRID DE METRICAS/INFOS -->
+            <div class="grid-cards">
+                <div class="card">
+                    <div class="card-titulo">👨‍💻 Responsável Técnico</div>
+                    <div class="card-conteudo" id="nome-dev">Seu Nome Aqui</div>
+                </div>
+                <div class="card">
+                    <div class="card-titulo">📁 Ambiente Atual</div>
+                    <div class="card-conteudo" style="color: var(--cyan);">Production / Node.js Cluster</div>
+                </div>
+            </div>
+
+            <!-- MURAL DE COMUNICAÇÃO DA EQUIPE -->
+            <div class="card-saudacao">
+                <div class="card-titulo" style="color: var(--magenta);">👋 Mural da Equipe</div>
+                <p>📢 "Olá, equipe! Sejam bem-vindos a mais um ciclo de desenvolvimento incrível. Vamos juntos construir soluções memoráveis!"</p>
+            </div>
+
+            <!-- COMPONENTE DE TERMINAL PROFISSIONAL -->
+            <div class="terminal-container">
+                <div class="terminal-header">
+                    <div class="terminal-buttons">
+                        <div class="btn-term btn-fechar"></div>
+                        <div class="btn-term btn-minimizar"></div>
+                        <div class="btn-term btn-maximizar"></div>
+                    </div>
+                    <div class="terminal-titulo">bash - node app.js</div>
+                </div>
+                <!-- O Javascript vai injetar os logs estilizados aqui dentro -->
+                <div class="terminal-content" id="terminal-log"></div>
+            </div>
+
+        </div>
+
+        <!-- FOOTER DO SITE -->
+        <footer class="dashboard-footer">
+            Desenvolvido com excelência visual • <a href="https://github.com" target="_blank">Acessar perfil no GitHub</a>
+        </footer>
+    </div>
+
+    <!-- ==========================================================================
+         LÓGICA JAVASCRIPT INTEGRADA (Roda as funções solicitadas e imprime na tela)
+         ========================================================================== -->
+    <script>
+        // Mapeamento dos dados dinâmicos do site
+        const informacoesProjeto = {
+            desenvolvedor: "Seu Nome Aqui",
