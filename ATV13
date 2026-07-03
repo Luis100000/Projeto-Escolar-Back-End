@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Escolar</title>
+    <style>
+        /* Variáveis de Cores Modernas (Estilo Tailwind/Shadcn) */
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --success-bg: #d1fae5;
+            --warning: #f59e0b;
+            --warning-bg: #fef3c7;
+        }
+
+        /* Configuração Geral da Página */
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 2rem;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Topo do Site */
+        header {
+            margin-bottom: 2.5rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 1.875rem;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            margin: 0;
+            color: var(--text-main);
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+            font-size: 0.95rem;
+        }
+
+        /* Grid Organizador dos Blocos */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 2rem;
+        }
+
+        @media (max-width: 600px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Estilização dos Cards Principais */
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            background: #fafafa;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-content {
+            padding: 0;
+            flex-grow: 1;
+        }
+
+        /* Design Funcional das Tabelas */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        th {
+            background-color: #f1f5f9;
+            color: var(--text-muted);
+            font-weight: 600;
+            padding: 0.75rem 1.25rem;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        td {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-main);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background-color: #f8fafc;
+        }
+
+        /* Badges de Status Estilizadas */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+
+        .badge-aluna { background: #e0e7ff; color: #4338ca; }
+        .badge-professor { background: #f3e8ff; color: #6b21a8; }
+        .badge-coordenadora { background: #fce7f3; color: #9d174d; }
+        
+        .status-true { background: var(--success-bg); color: #065f46; }
+        .status-false { background: var(--warning-bg); color: #92400e; }
+
+        .date-text {
+            font-family: monospace;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Dashboard Sistema Escolar</h1>
+            <p class="subtitle">Simulação de banco de dados através de coleções mockadas.</p>
+        </header>
+
+        <div class="grid">
+            <!-- Bloco 1: Usuários -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">👥 Usuários do Sistema</h2>
+                </div>
+                <div class="card-content">
+                    <table>
+                        <thead>
+                            <tr><th>ID</th><th>Nome</th><th>Perfil</th></tr>
+                        </thead>
+                        <tbody id="tabela-usuarios"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Bloco 2: Avisos -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">📢 Comunicados Gerais</h2>
+                </div>
+                <div class="card-content">
+                    <table>
+                        <thead>
+                            <tr><th>Título</th><th>Mensagem</th><th>Data</th></tr>
+                        </thead>
+                        <tbody id="tabela-avisos"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Bloco 3: Tarefas -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">📝 Atividades Acadêmicas</h2>
+                </div>
+                <div class="card-content">
+                    <table>
+                        <thead>
+                            <tr><th>Matéria</th><th>Descrição</th><th>Status</th></tr>
+                        </thead>
+                        <tbody id="tabela-tarefas"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Bloco 4: Reservas -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">🏫 Controle de Salas</h2>
+                </div>
+                <div class="card-content">
+                    <table>
+                        <thead>
+                            <tr><th>Ambiente</th><th>Horário</th><th>Responsável</th></tr>
+                        </thead>
+                        <tbody id="tabela-reservas"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // MOCKS DE DADOS SOLICITADOS
+        const usuarios = [
+            { id: 1, nome: 'Ana', email: 'ana@escola.com', perfil: 'aluna' },
+            { id: 2, nome: 'Carlos', email: 'carlos@escola.com', perfil: 'professor' },
+            { id: 3, nome: 'Beatriz', email: 'beatriz@escola.com', perfil: 'coordenadora' }
+        ];
+
+        const avisos = [
+            { id: 101, titulo: 'Feriado Escolar', texto: 'Não haverá aula na terça.', data: '07/07/2026' },
+            { id: 102, titulo: 'Feira de Ciências', texto: 'Tragam os materiais.', data: '10/07/2026' },
+            { id: 103, titulo: 'Provas Bimestrais', texto: 'Calendário disponível.', data: '15/07/2026' },
+            { id: 104, titulo: 'Reunião de Pais', texto: 'Às 19h no auditório.', data: '20/07/2026' }
+        ];
+
+        const tarefas = [
+            { id: 201, materia: 'Matemática', descricao: 'Exercícios pág. 45.', entregue: false },
+            { id: 202, materia: 'História', descricao: 'Resumo do capítulo 3.', entregue: true },
+            { id: 203, materia: 'Química', descricao: 'Relatório prático.', entregue: false }
+        ];
+
+        const reservasSala = [
+            { id: 301, sala: 'Lab. de Informática', horario: '08:00 - 10:00', responsavel: 'Carlos' },
+            { id: 302, sala: 'Auditório Principal', horario: '14:00 - 16:00', responsavel: 'Beatriz' }
+        ];
+
+        // INJEÇÃO AUTOMÁTICA DOS DADOS NAS TABELAS DO HTML
+        
+        // 1. Usuários
+        document.getElementById('tabela-usuarios').innerHTML = usuarios.map(u => `
+            <tr>
+                <td>#${u.id}</td>
+                <td><strong>${u.nome}</strong><br><small style="color: var(--text-muted)">${u.email}</small></td>
+                <td><span class="badge badge-${u.perfil}">${u.perfil}</span></td>
+            </tr>
+        `).join('');
+
+        // 2. Avisos
+        document.getElementById('tabela-avisos').innerHTML = avisos.map(a => `
+            <tr>
+                <td><strong>${a.titulo}</strong></td>
+                <td>${a.texto}</td>
+                <td class="date-text">${a.data}</td>
+            </tr>
+        `).join('');
+
+        // 3. Tarefas
+        document.getElementById('tabela-tarefas').innerHTML = tarefas.map(t => `
+            <tr>
+                <td><strong>${t.materia}</strong></td>
+                <td>${t.descricao}</td>
+                <td><span class="badge status-${t.entregue}">${t.entregue ? 'Entregue' : 'Pendente'}</span></td>
+            </tr>
+        `).join('');
+
+        // 4. Reservas
+        document.getElementById('tabela-reservas').innerHTML = reservasSala.map(r => `
+            <tr>
+                <td><strong>${r.sala}</strong></td>
+                <td>${r.horario}</td>
+                <td>${r.responsavel}</td>
+            </tr>
+        `).join('');
+
+        // Mantém a exibição no terminal caso execute via Node.js
+        console.log("Mocks carregados com sucesso no DOM da página.");
+    </script>
+</body>
+</html>

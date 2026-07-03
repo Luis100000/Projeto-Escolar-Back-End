@@ -1,0 +1,214 @@
+const express = require('express');
+const app = express();
+
+// Middleware para entender JSON e dados vindos de formulários nativos
+app.use(express.json());
+
+// Banco de dados simulado (Mocks das Atividades 13 e 14)
+const usuarios = [
+  { id: 1, nome: 'Ana', email: 'ana@escola.com', perfil: 'aluna' },
+  { id: 2, nome: 'Carlos', email: 'carlos@escola.com', perfil: 'professor' }
+];
+
+const avisos = [
+  { id: 101, titulo: 'Feriado Escolar', texto: 'Não haverá aula na terça.', data: '2026-07-07' }
+];
+
+const tarefas = [
+  { id: 201, materia: 'Matemática', descricao: 'Exercícios pág. 45.', entregue: false }
+];
+
+const reservasSala = [
+  { id: 301, sala: 'Lab. de Informática', horario: '08:00 - 10:00', responsavel: 'Carlos' }
+];
+
+// --- ROTAS GET (Para a interface ler os dados atuais) ---
+app.get('/api/usuarios', (req, res) => res.json(usuarios));
+app.get('/api/avisos', (req, res) => res.json(avisos));
+app.get('/api/tarefas', (req, res) => res.json(tarefas));
+app.get('/api/reservas', (req, res) => res.json(reservasSala));
+
+// --- ROTAS POST (Exercícios da Atividade 14) ---
+app.post('/usuarios', (req, res) => {
+  const novo = { id: usuarios.length + 1, ...req.body };
+  usuarios.push(novo);
+  res.status(201).json({ mensagem: 'Usuário cadastrado!', dado: novo });
+});
+
+app.post('/avisos', (req, res) => {
+  const novo = { id: Date.now(), ...req.body };
+  avisos.push(novo);
+  res.status(201).json({ mensagem: 'Aviso cadastrado!', dado: novo });
+});
+
+app.post('/tarefas', (req, res) => {
+  const novo = { id: Date.now(), ...req.body, entregue: req.body.entregue === true || req.body.entregue === 'true' };
+  tarefas.push(novo);
+  res.status(201).json({ mensagem: 'Tarefa cadastrada!', dado: novo });
+});
+
+app.post('/reservas', (req, res) => {
+  const novo = { id: Date.now(), ...req.body };
+  reservasSala.push(novo);
+  res.status(201).json({ mensagem: 'Reserva concluída!', dado: novo });
+});
+
+// --- INTERFACE GRÁFICA INTERATIVA (HTML/CSS/JS Frontend) ---
+app.get('/', (req, res) => {
+  res.send(`
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Escolar Administrativo</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 2rem;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header { margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
+        h1 { margin: 0; font-size: 1.75rem; font-weight: 800; }
+        
+        /* Grid das Seções */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 2rem; }
+        @media(max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+        
+        /* Cards Estilizados */
+        .card { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 1.5rem; overflow: hidden; }
+        .card-header { padding: 1rem 1.5rem; background: #fafafa; border-bottom: 1px solid var(--border); font-weight: 600; font-size: 1.1rem; }
+        .card-body { padding: 1.5rem; }
+        
+        /* Formulários Laterais */
+        form { display: grid; gap: 0.75rem; margin-bottom: 1.5rem; background: #f1f5f9; padding: 1rem; border-radius: 8px; }
+        input, select, button { padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border); font-size: 0.9rem; }
+        input:focus, select:focus { outline: 2px solid var(--primary); }
+        button { background: var(--primary); color: white; border: none; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        button:hover { background: var(--primary-hover); }
+        
+        /* Tabelas Limpas */
+        table { width: 100%; border-collapse: collapse; font-size: 0.875rem; text-align: left; }
+        th { background: #f8fafc; color: var(--text-muted); padding: 0.5rem 1rem; text-transform: uppercase; font-size: 0.75rem; }
+        td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+        tr:last-child td { border-bottom: none; }
+        
+        /* Badges de Destaque */
+        .badge { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+        .badge-aluna { background: #e0e7ff; color: #4338ca; }
+        .badge-professor { background: #f3e8ff; color: #6b21a8; }
+        .status-true { background: #d1fae5; color: #065f46; }
+        .status-false { background: #fef3c7; color: #92400e; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Dashboard Integrado (API POST/GET)</h1>
+            <p style="color: var(--text-muted); margin: 0.25rem 0 0 0;">Insira dados nos formulários para atualizar as tabelas via requisições POST.</p>
+        </header>
+
+        <div class="grid">
+            <!-- SEÇÃO DE USUÁRIOS -->
+            <div class="card">
+                <div class="card-header">👥 Gerenciamento de Usuários</div>
+                <div class="card-body">
+                    <form onsubmit="enviarDados(event, '/usuarios')">
+                        <input type="text" name="nome" placeholder="Nome Completo" required>
+                        <input type="email" name="email" placeholder="E-mail Institucional" required>
+                        <select name="perfil">
+                            <option value="aluna">Aluna(o)</option>
+                            <option value="professor">Professor(a)</option>
+                        </select>
+                        <button type="submit">Cadastrar Usuário</button>
+                    </form>
+                    <table>
+                        <thead><tr><th>Nome / Email</th><th>Perfil</th></tr></thead>
+                        <tbody id="tabela-usuarios"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SEÇÃO DE TAREFAS -->
+            <div class="card">
+                <div class="card-header">📝 Atividades Acadêmicas</div>
+                <div class="card-body">
+                    <form onsubmit="enviarDados(event, '/tarefas')">
+                        <input type="text" name="materia" placeholder="Matéria (Ex: Biologia)" required>
+                        <input type="text" name="descricao" placeholder="Descrição da Atividade" required>
+                        <select name="entregue">
+                            <option value="false">Pendente</option>
+                            <option value="true">Entregue</option>
+                        </select>
+                        <button type="submit">Adicionar Atividade</button>
+                    </form>
+                    <table>
+                        <thead><tr><th>Matéria</th><th>Descrição</th><th>Status</th></tr></thead>
+                        <tbody id="tabela-tarefas"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SEÇÃO DE AVISOS -->
+            <div class="card">
+                <div class="card-header">📢 Comunicados Importantes</div>
+                <div class="card-body">
+                    <form onsubmit="enviarDados(event, '/avisos')">
+                        <input type="text" name="titulo" placeholder="Título do Aviso" required>
+                        <input type="text" name="texto" placeholder="Texto descritivo" required>
+                        <input type="date" name="data" required>
+                        <button type="submit">Publicar Aviso</button>
+                    </form>
+                    <table>
+                        <thead><tr><th>Título / Mensagem</th><th>Data</th></tr></thead>
+                        <tbody id="tabela-avisos"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SEÇÃO DE RESERVAS -->
+            <div class="card">
+                <div class="card-header">🏫 Alocação de Espaços</div>
+                <div class="card-body">
+                    <form onsubmit="enviarDados(event, '/reservas')">
+                        <input type="text" name="sala" placeholder="Nome da Sala / Laboratório" required>
+                        <input type="text" name="horario" placeholder="Horário (Ex: 08:00 - 10:00)" required>
+                        <input type="text" name="responsavel" placeholder="Professor Responsável" required>
+                        <button type="submit">Reservar Espaço</button>
+                    </form>
+                    <table>
+                        <thead><tr><th>Ambiente</th><th>Horário</th><th>Responsável</th></tr></thead>
+                        <tbody id="tabela-reservas"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Função assíncrona para buscar e atualizar as tabelas do Front
+        async function atualizarInterface() {
+            const resUsers = await fetch('/api/usuarios').then(r => r.json());
+            document.getElementById('tabela-usuarios').innerHTML = resUsers.map(u => \`
+                <tr>
+                    <td><strong>\${u.nome}</strong><br><small style="color:var(--text-muted)">\${u.email}</small></td>
+                    <td><span class="badge badge-\${u.perfil}">\${u.perfil}</span></td>
+                </tr>
+            \`).join('');
+
+            const resTarefas = await fetch('/api/tarefas').then(r => r.json());
+            document.getElementById('tabela-tarefas').innerHTML = resTarefas.map(t => \`
+                <tr>
+                    <td><strong>\${t.materia}</strong></td>
