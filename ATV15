@@ -1,0 +1,229 @@
+const express = require('express');
+const app = express();
+
+app.use(express.json());
+
+// Dados em memória para simulação (Bancos de dados)
+let usuarios = [
+  { id: 1, nome: 'Ana', email: 'ana@escola.com' },
+  { id: 2, nome: 'Carlos', email: 'carlos@escola.com' }
+];
+
+let tarefas = [
+  { id: 1, materia: 'Matemática', descricao: 'Exercícios pág. 45' },
+  { id: 2, materia: 'História', descricao: 'Resumo capítulo 3' }
+];
+
+// ==========================================
+// 1. CRUD EM MEMÓRIA PARA USUÁRIOS
+// ==========================================
+
+app.get('/usuarios', (req, res) => {
+  res.json(usuarios);
+});
+
+app.get('/usuarios/:id', (req, res) => {
+  const id = Number(req.params.id);
+  const usuario = usuarios.find(item => item.id === id);
+  if (!usuario) return res.status(404).json({ mensagem: 'Usuário não encontrado' });
+  res.json(usuario);
+});
+
+app.post('/usuarios', (req, res) => {
+  const novoUsuario = {
+    id: usuarios.length > 0 ? usuarios[usuarios.length - 1].id + 1 : 1,
+    nome: req.body.nome,
+    email: req.body.email
+  };
+  usuarios.push(novoUsuario);
+  res.status(201).json(novoUsuario);
+});
+
+app.patch('/usuarios/:id/nome', (req, res) => {
+  const id = Number(req.params.id);
+  const usuario = usuarios.find(item => item.id === id);
+  if (!usuario) return res.status(404).json({ mensagem: 'Usuário não encontrado' });
+  usuario.nome = req.body.nome;
+  res.json({ mensagem: 'Nome atualizado com sucesso', usuario });
+});
+
+app.put('/usuarios/:id', (req, res) => {
+  const id = Number(req.params.id);
+  const usuario = usuarios.find(item => item.id === id);
+  if (!usuario) return res.status(404).json({ mensagem: 'Usuário não encontrado' });
+  usuario.nome = req.body.nome;
+  usuario.email = req.body.email;
+  res.json(usuario);
+});
+
+app.delete('/usuarios/:id', (req, res) => {
+  const id = Number(req.params.id);
+  const existe = usuarios.some(item => item.id === id);
+  if (!existe) return res.status(404).json({ mensagem: 'Usuário não encontrado' });
+  usuarios = usuarios.filter(item => item.id !== id);
+  res.json({ mensagem: 'Usuário removido com sucesso' });
+});
+
+// ==========================================
+// 2. CRUD EM MEMÓRIA PARA TAREFAS
+// ==========================================
+
+app.get('/tarefas', (req, res) => {
+  res.json(tarefas);
+});
+
+app.get('/tarefas/:id', (req, res) => {
+  const id = Number(req.params.id);
+  const tarefa = tarefas.find(item => item.id === id);
+  if (!tarefa) return res.status(404).json({ mensagem: 'Tarefa não encontrada' });
+  res.json(tarefa);
+});
+
+app.post('/tarefas', (req, res) => {
+  const novaTarefa = {
+    id: tarefas.length > 0 ? tarefas[tarefas.length - 1].id + 1 : 1,
+    materia: req.body.materia,
+    descricao: req.body.descricao
+  };
+  tarefas.push(novaTarefa);
+  res.status(201).json(novaTarefa);
+});
+
+app.put('/tarefas/:id', (req, res) => {
+  const id = Number(req.params.id);
+  const tarefa = tarefas.find(item => item.id === id);
+  if (!tarefa) return res.status(404).json({ mensagem: 'Tarefa não encontrada' });
+  tarefa.materia = req.body.materia;
+  tarefa.descricao = req.body.descricao;
+  res.json(tarefa);
+});
+
+app.delete('/tarefas/:id', (req, res) => {
+  const id = Number(req.params.id);
+  const existe = tarefas.some(item => item.id === id);
+  if (!existe) return res.status(404).json({ mensagem: 'Tarefa não encontrada' });
+  tarefas = tarefas.filter(item => item.id !== id);
+  res.json({ mensagem: 'Tarefa removida com sucesso' });
+});
+
+// ==========================================
+// INTERFACE FRONTIEND INTEGRADA (HTML/CSS/JS)
+// ==========================================
+app.get('/', (req, res) => {
+  res.send(`
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciador Escolar Completo</title>
+    <style>
+        :root {
+            --bg: #f1f5f9;
+            --surface: #ffffff;
+            --text: #0f172a;
+            --muted: #64748b;
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --border: #e2e8f0;
+        }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 2rem;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header { margin-bottom: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
+        h1 { margin: 0; font-size: 1.75rem; font-weight: 800; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 2rem; }
+        @media(max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+        
+        /* Cards */
+        .card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.02); overflow: hidden; }
+        .card-header { padding: 1.25rem 1.5rem; background: #fafafa; border-bottom: 1px solid var(--border); font-weight: 700; font-size: 1.1rem; }
+        .card-body { padding: 1.5rem; }
+        
+        /* Forms */
+        form { display: grid; gap: 0.75rem; margin-bottom: 1.5rem; background: #f8fafc; padding: 1.25rem; border-radius: 8px; border: 1px solid var(--border); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+        input, button { padding: 0.6rem 0.75rem; border-radius: 6px; border: 1px solid var(--border); font-size: 0.9rem; }
+        input:focus { outline: 2px solid var(--primary); }
+        button { font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .btn-primary { background: var(--primary); color: white; border: none; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-danger { background: transparent; color: var(--danger); border: 1px solid var(--border); padding: 0.3rem 0.6rem; font-size: 0.8rem; }
+        .btn-danger:hover { background: #fef2f2; border-color: var(--danger); }
+        .btn-edit { background: transparent; color: var(--primary); border: 1px solid var(--border); padding: 0.3rem 0.6rem; font-size: 0.8rem; margin-right: 0.25rem; }
+        .btn-edit:hover { background: #e0e7ff; border-color: var(--primary); }
+
+        /* Tables */
+        table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+        th { background: #f8fafc; color: var(--muted); padding: 0.75rem 1rem; text-align: left; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        td { padding: 0.85rem 1rem; border-bottom: 1px solid var(--border); }
+        tr:last-child td { border-bottom: none; }
+        .actions { text-align: right; white-space: nowrap; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Painel Administrativo da Escola</h1>
+            <p style="color: var(--muted); margin: 0.25rem 0 0 0;">Painel visual completo operando sobre rotas HTTP GET, POST, PUT, PATCH e DELETE.</p>
+        </header>
+
+        <div class="grid">
+            <!-- SEÇÃO DE USUÁRIOS -->
+            <div class="card">
+                <div class="card-header">👥 Gerenciamento de Usuários</div>
+                <div class="card-body">
+                    <form id="form-usuario" onsubmit="salvarUsuario(event)">
+                        <input type="hidden" id="usuario-id">
+                        <div class="form-row">
+                            <input type="text" id="usuario-nome" placeholder="Nome do Usuário" required>
+                            <input type="email" id="usuario-email" placeholder="E-mail" required>
+                        </div>
+                        <button type="submit" class="btn-primary" id="btn-submit-usuario">Cadastrar Usuário</button>
+                    </form>
+                    <table>
+                        <thead><tr><th>ID</th><th>Nome / Email</th><th class="actions">Ações</th></tr></thead>
+                        <tbody id="tabela-usuarios"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SEÇÃO DE TAREFAS -->
+            <div class="card">
+                <div class="card-header">📝 Controle de Atividades / Tarefas</div>
+                <div class="card-body">
+                    <form id="form-tarefa" onsubmit="salvarTarefa(event)">
+                        <input type="hidden" id="tarefa-id">
+                        <div class="form-row">
+                            <input type="text" id="tarefa-materia" placeholder="Matéria" required>
+                            <input type="text" id="tarefa-descricao" placeholder="Descrição" required>
+                        </div>
+                        <button type="submit" class="btn-primary" id="btn-submit-tarefa">Adicionar Atividade</button>
+                    </form>
+                    <table>
+                        <thead><tr><th>ID</th><th>Matéria / Descrição</th><th class="actions">Ações</th></tr></thead>
+                        <tbody id="tabela-tarefas"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Carrega dados iniciais da API Express
+        async function carregarDados() {
+            const uRes = await fetch('/usuarios').then(r => r.json());
+            document.getElementById('tabela-usuarios').innerHTML = uRes.map(u => \`
+                <tr>
+                    <td>#\${u.id}</td>
+                    <td><strong>\${u.nome}</strong><br><small style="color: var(--muted)">\${u.email}</small></td>
+                    <td class="actions">
+                        <button class="btn-edit" onclick="prepararEdicaoUsuario(\${u.id}, '\${u.nome}', '\${u.email}')">Editar</button>
+                        <button class="btn-edit" onclick="atualizarApenasNome(\${u.id})">Nome (Patch)</button>
