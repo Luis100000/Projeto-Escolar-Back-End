@@ -1,0 +1,143 @@
+import React, { useState, useEffect } from 'react';
+
+export default function App() {
+  // Estados para os formulários POST
+  const [nomeUsuario, setNomeUsuario] = useState('');
+  const [tituloTarefa, setTituloTarefa] = useState('');
+  
+  // Estados para a listagem de GET, carregamento e erros
+  const [avisos, setAvisos] = useState([]);
+  const [erro, setErro] = useState(null);
+  const [carregando, setCarregando] = useState(true);
+
+  // Estados para exibir as respostas do servidor (Feedback)
+  const [respostaUsuario, setRespostaUsuario] = useState(null);
+  const [respostaTarefa, setRespostaTarefa] = useState(null);
+
+  // 1. Efeito GET: Busca os avisos ao carregar a página
+  useEffect(() => {
+    // Usando uma URL de exemplo pública. Altere para a URL do seu back-end.
+    fetch('https://typicode.com')
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Erro na resposta do servidor');
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setAvisos(data);
+        setCarregando(false);
+      })
+      .catch((err) => {
+        setErro('O servidor não respondeu corretamente. Tente novamente mais tarde.');
+        setCarregando(false);
+      });
+  }, []);
+
+  // 2. Função POST: Envia Usuário
+  const enviarUsuario = (e) => {
+    e.preventDefault();
+    setRespostaUsuario('Enviando usuário...');
+
+    fetch('https://typicode.com', {
+      method: 'POST',
+      body: JSON.stringify({ name: nomeUsuario }),
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    })
+      .then((response) => response.json())
+      .then((data) => setRespostaUsuario(`Usuário cadastrado com sucesso! ID: ${data.id}`))
+      .catch(() => setRespostaUsuario('Erro ao enviar o usuário.'));
+  };
+
+  // 3. Função POST: Envia Tarefa
+  const enviarTarefa = (e) => {
+    e.preventDefault();
+    setRespostaTarefa('Enviando tarefa...');
+
+    fetch('https://typicode.com', {
+      method: 'POST',
+      body: JSON.stringify({ title: tituloTarefa, completed: false }),
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    })
+      .then((response) => response.json())
+      .then((data) => setRespostaTarefa(`Tarefa criada com sucesso! ID: ${data.id}`))
+      .catch(() => setRespostaTarefa('Erro ao enviar a tarefa.'));
+  };
+
+  // 4. Renderização da tela de Erro
+  if (erro) {
+    return (
+      <div style={estilos.containerErro}>
+        <h2>⚠️ Falha de Conexão</h2>
+        <p>{erro}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div style={estilos.container}>
+      <h1>Painel de Controle</h1>
+
+      {/* Tela: Envio de Usuário POST */}
+      <div style={estilos.card}>
+        <h2>👤 Cadastrar Usuário</h2>
+        <form onSubmit={enviarUsuario} style={estilos.form}>
+          <input
+            type="text"
+            placeholder="Nome do usuário"
+            value={nomeUsuario}
+            onChange={(e) => setNomeUsuario(e.target.value)}
+            style={estilos.input}
+          />
+          <button type="submit" style={estilos.button}>Enviar Usuário</button>
+        </form>
+        {respostaUsuario && <p style={estilos.resposta}>{respostaUsuario}</p>}
+      </div>
+
+      {/* Tela: Envio de Tarefa POST */}
+      <div style={estilos.card}>
+        <h2>📝 Criar Tarefa</h2>
+        <form onSubmit={enviarTarefa} style={estilos.form}>
+          <input
+            type="text"
+            placeholder="Título da tarefa"
+            value={tituloTarefa}
+            onChange={(e) => setTituloTarefa(e.target.value)}
+            style={estilos.input}
+          />
+          <button type="submit" style={estilos.button}>Enviar Tarefa</button>
+        </form>
+        {respostaTarefa && <p style={estilos.resposta}>{respostaTarefa}</p>}
+      </div>
+
+      {/* Tela: Listagem de Avisos GET */}
+      <div style={estilos.card}>
+        <h2>📢 Avisos Recebidos (GET)</h2>
+        {carregando ? (
+          <p>Carregando avisos...</p>
+        ) : (
+          <ul style={estilos.lista}>
+            {avisos.map((aviso) => (
+              <li key={aviso.id} style={estilos.itemLista}>
+                <strong>{aviso.title}</strong>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Estilos básicos para organização visual
+const estilos = {
+  container: { fontFamily: 'Segoe UI', padding: '20px', maxWidth: '600px', margin: '0 auto' },
+  card: { border: '1px solid #ddd', borderRadius: '8px', padding: '20px', marginBottom: '20px', backgroundColor: '#f9f9f9' },
+  form: { display: 'flex', gap: '10px' },
+  input: { flex: '1', padding: '10px', borderRadius: '4px', border: '1px solid #ccc' },
+  button: { padding: '10px 15px', borderRadius: '4px', border: 'none', backgroundColor: '#007BFF', color: 'white', cursor: 'pointer' },
+  resposta: { marginTop: '10px', color: '#555', fontWeight: 'bold' },
+  lista: { listStyleType: 'none', padding: '0' },
+  itemLista: { padding: '10px', borderBottom: '1px solid #eee' },
+  containerErro: { fontFamily: 'Segoe UI', padding: '50px', textAlign: 'center', color: 'red' }
+};

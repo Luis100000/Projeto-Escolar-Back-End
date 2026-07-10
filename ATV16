@@ -1,0 +1,26 @@
+sistema-avisos/
+│
+├── backend/                  # Código do servidor e APIs
+│   ├── data/                 # Dados em memória
+│   │   └── memoria.js        # Array simulando o banco de dados
+│   ├── routes/               # Rotas HTTP e endpoints
+│   │   ├── avisos.js         # Rotas para criar/ler avisos
+│   │   └── auth.js           # Rota de login
+│   └── server.js             # Arquivo principal do servidor (Back-end)
+│
+├── frontend/                 # Interface do Usuário (Cliente)
+│   ├── css/
+│   │   ├── global.css        # Estilos globais
+│   │   └── login.css         # Estilização da tela de login
+│   ├── js/
+│   │   ├── api.js            # Comunicação via Fetch API com o servidor
+│   │   └── login.js          # Manipulação do formulário de login
+│   └── views/
+│       ├── avisos.html       # Tela principal do sistema de avisos
+│       └── login.html        # Tela de login
+│
+├── docs/                     # Documentação e Especificações
+│   ├── API.md                # Documentação técnica de uso da API
+│   └── README.md             # Instruções de configuração do projeto
+│
+└── package.json              # Dependências e scripts do projeto (Node.js)
